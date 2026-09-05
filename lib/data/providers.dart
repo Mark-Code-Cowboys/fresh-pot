@@ -2,6 +2,9 @@ import 'package:cc_core/cc_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'database/app_database.dart';
+import 'repositories/bean_repository.dart';
+import 'repositories/brew_repository.dart';
+import 'repositories/gear_repository.dart';
 
 /// Overridden in main() with the real on-device database, and in tests
 /// with an in-memory one.
@@ -23,4 +26,29 @@ final journalRepositoryProvider = Provider<AppJournalRepository>(
   (ref) => ref
       .watch(databaseProvider)
       .journal(photoStore: ref.watch(photoServiceProvider)),
+);
+
+/// Bags ever added on this device; feeds the free tier so a slot can't
+/// be recycled by delete-and-re-add (a bag is your tasting history,
+/// not a consumable slot — Phase C wires the gate).
+final beanTallyProvider = Provider<LifetimeTally>((ref) {
+  final tally = LifetimeTally(ref.watch(kvStoreProvider),
+      key: 'beans_created_lifetime');
+  ref.onDispose(tally.dispose);
+  return tally;
+});
+
+final beanRepositoryProvider = Provider<BeanRepository>(
+  (ref) => BeanRepository(ref.watch(databaseProvider),
+      journal: ref.watch(journalRepositoryProvider),
+      tally: ref.watch(beanTallyProvider)),
+);
+
+final brewRepositoryProvider = Provider<BrewRepository>(
+  (ref) => BrewRepository(ref.watch(databaseProvider),
+      journal: ref.watch(journalRepositoryProvider)),
+);
+
+final gearRepositoryProvider = Provider<GearRepository>(
+  (ref) => GearRepository(ref.watch(databaseProvider)),
 );

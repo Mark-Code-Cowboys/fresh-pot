@@ -11,6 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fresh_pot/core/theme/app_theme.dart';
 import 'package:fresh_pot/data/database/app_database.dart';
 import 'package:fresh_pot/data/providers.dart';
+import 'package:fresh_pot/data/repositories/bean_repository.dart';
+import 'package:fresh_pot/data/repositories/brew_repository.dart';
 
 AppDatabase makeTestDb() => AppDatabase(NativeDatabase.memory());
 
@@ -61,3 +63,55 @@ Future<void> disposeApp(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pump(const Duration(seconds: 1));
 }
+
+BeanDraft beanDraft({
+  String roaster = 'Copper Kettle',
+  String name = 'Guji Highlands',
+  String? origin = 'Ethiopia',
+  RoastProcess? process = RoastProcess.washed,
+  RoastLevel? roastLevel = RoastLevel.light,
+  int? priceBagCents,
+  DateTime? roastDate,
+  DateTime? openedDate,
+  DateTime? finishedDate,
+  int? rating,
+  String? notes,
+  List<JournalPhotoDraft> photos = const [],
+}) =>
+    BeanDraft(
+      roaster: roaster,
+      name: name,
+      origin: origin,
+      process: process,
+      roastLevel: roastLevel,
+      priceBagCents: priceBagCents,
+      roastDate: roastDate,
+      openedDate: openedDate,
+      finishedDate: finishedDate,
+      rating: rating,
+      notes: notes,
+      photos: photos,
+    );
+
+BrewDraft brewDraft({
+  BrewMethod method = BrewMethod.v60,
+  double? doseG = 15,
+  double? waterG = 250,
+  double? yieldG,
+  String? grindSetting,
+  int? grinderGearId,
+  DateTime? brewedAt,
+  int? rating,
+  String? notes,
+}) =>
+    BrewDraft(
+      method: method,
+      doseG: doseG,
+      waterG: waterG,
+      yieldG: yieldG,
+      grindSetting: grindSetting,
+      grinderGearId: grinderGearId,
+      brewedAt: brewedAt,
+      rating: rating,
+      notes: notes,
+    );
