@@ -112,6 +112,14 @@ class BeanRepository {
     return max(live, tallied);
   }
 
+  /// Live [lifetimeCreated], ticking on creates and on row changes.
+  Stream<int> watchLifetimeCreated() {
+    final live =
+        _db.select(_db.beans).watch().map((rows) => rows.length);
+    final tallied = _tally?.watch() ?? Stream.value(0);
+    return live.combineLatest(tallied, (int a, int b) => max(a, b));
+  }
+
   /// Creates the bag (and its journal entry when there's a story)
   /// atomically; returns the bean id.
   Future<int> create(BeanDraft d) async {

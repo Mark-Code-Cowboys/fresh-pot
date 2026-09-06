@@ -13,6 +13,7 @@ import 'package:fresh_pot/data/database/app_database.dart';
 import 'package:fresh_pot/data/providers.dart';
 import 'package:fresh_pot/data/repositories/bean_repository.dart';
 import 'package:fresh_pot/data/repositories/brew_repository.dart';
+import 'package:fresh_pot/features/monetization/monetization_providers.dart';
 
 AppDatabase makeTestDb() => AppDatabase(NativeDatabase.memory());
 
@@ -39,11 +40,10 @@ class FakeAppPhotoService implements PhotoService {
 }
 
 /// The app wired to an in-memory database and fake services.
-/// PHASE C adds the entitlement override here (see Hitch Post's
-/// helpers for the full shape).
 Widget testApp({
   required AppDatabase db,
   required Widget home,
+  EntitlementService? entitlements,
   KeyValueStore? kvStore,
   List<Override> overrides = const [],
 }) =>
@@ -52,6 +52,8 @@ Widget testApp({
         databaseProvider.overrideWithValue(db),
         photoServiceProvider.overrideWithValue(FakeAppPhotoService()),
         kvStoreProvider.overrideWithValue(kvStore ?? InMemoryKeyValueStore()),
+        entitlementServiceProvider
+            .overrideWithValue(entitlements ?? FakeEntitlementService()),
         ...overrides,
       ],
       child: MaterialApp(theme: AppTheme.light(), home: home),

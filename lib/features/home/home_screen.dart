@@ -6,7 +6,9 @@ import '../../core/utils/labels.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/bean_repository.dart';
 import '../beans/bean_detail_screen.dart';
-import '../monetization/free_limit.dart';
+import '../monetization/monetization_providers.dart';
+import '../monetization/paywall_sheet.dart';
+import '../settings/settings_screen.dart';
 
 /// Live bags, newest first from the repository.
 final beansProvider = StreamProvider<List<BeanWithStory>>(
@@ -30,7 +32,19 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final beans = ref.watch(beansProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Fresh Pot')),
+      appBar: AppBar(
+        title: const Text('Fresh Pot'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                  builder: (_) => const SettingsScreen()),
+            ),
+          ),
+        ],
+      ),
       body: beans.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('$e')),
@@ -70,33 +84,19 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _list(
       BuildContext context, WidgetRef ref, List<BeanWithStory> all) {
-    final usage = beanFreeLimit.usage(all.length);
+    final usage = ref.watch(freeTierUsageProvider);
     return ListView(
       children: [
-        // Phase C hides this for Pro owners and wires the real paywall.
-        FreeTierCounter(
-          usage: usage,
-          margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-          onGoPro: () => _showPaywallStub(context),
-        ),
+        // Invisible for Pro owners; taps open the paywall.
+        if (usage != null)
+          FreeTierCounter(
+            usage: usage,
+            margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            onGoPro: () => showPaywallSheet(context),
+          ),
         for (final bag in activeFirst(all)) _BeanCard(bag),
         const SizedBox(height: 88), // keep the FAB off the last card
       ],
-    );
-  }
-
-  void _showPaywallStub(BuildContext context) {
-    showPaywallModal<void>(
-      context,
-      builder: (context) => PaywallSheetScaffold(
-        icon: Icons.coffee_rounded,
-        title: 'Fresh Pot Pro',
-        body: 'Phase C wires real products here via cc_core '
-            'StoreEntitlementService; this stub proves the sheet.',
-        primaryLabel: 'Buy (stub)',
-        onPrimary: () => Navigator.of(context).pop(),
-        onLater: () => Navigator.of(context).pop(),
-      ),
     );
   }
 }
