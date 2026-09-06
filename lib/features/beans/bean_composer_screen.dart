@@ -7,6 +7,7 @@ import '../../core/utils/labels.dart';
 import '../../data/database/app_database.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/bean_repository.dart';
+import '../scan_import/bag_scan.dart';
 
 /// Add or edit a bag: roaster and name are the whole required path;
 /// everything else is for the curious.
@@ -102,6 +103,21 @@ class _BeanComposerScreenState extends ConsumerState<BeanComposerScreen> {
     }
   }
 
+  /// Fills the label fields from a scanned bag — after the user
+  /// confirmed the reading in [scanBagLabel]'s dialog, and still fully
+  /// editable here before saving.
+  Future<void> _scanBag() async {
+    final reading = await scanBagLabel(context, ref);
+    if (reading == null || !mounted) return;
+    setState(() {
+      if (reading.roaster != null) _roaster.text = reading.roaster!;
+      if (reading.name != null) _name.text = reading.name!;
+      if (reading.origin != null) _origin.text = reading.origin!;
+      if (reading.process != null) _process = reading.process;
+      if (reading.roastDate != null) _roastDate = reading.roastDate;
+    });
+  }
+
   Future<void> _save() async {
     if (_saving || _roaster.text.trim().isEmpty || _name.text.trim().isEmpty) {
       return;
@@ -155,6 +171,11 @@ class _BeanComposerScreenState extends ConsumerState<BeanComposerScreen> {
       appBar: AppBar(
         title: Text(widget.existing == null ? 'Add a bag' : 'Edit bag'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.document_scanner_outlined),
+            tooltip: 'Scan the bag',
+            onPressed: _scanBag,
+          ),
           TextButton(
               onPressed: _saving ? null : _save, child: const Text('Save')),
         ],

@@ -8,6 +8,7 @@ import '../../data/repositories/bean_repository.dart';
 import '../beans/bean_detail_screen.dart';
 import '../monetization/monetization_providers.dart';
 import '../monetization/paywall_sheet.dart';
+import '../scan_import/csv_flow.dart';
 import '../settings/settings_screen.dart';
 
 /// Live bags, newest first from the repository.
@@ -36,6 +37,11 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('Fresh Pot'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.download_outlined),
+            tooltip: 'Import your notes',
+            onPressed: () => runCsvImport(context, ref),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Settings',
             onPressed: () => Navigator.of(context).push(
@@ -49,12 +55,12 @@ class HomeScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('$e')),
         data: (all) =>
-            all.isEmpty ? _empty(context) : _list(context, ref, all),
+            all.isEmpty ? _empty(context, ref) : _list(context, ref, all),
       ),
     );
   }
 
-  Widget _empty(BuildContext context) {
+  Widget _empty(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return Center(
       child: Padding(
@@ -75,6 +81,13 @@ class HomeScreen extends ConsumerWidget {
               style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            // The rescue path, front and center for switchers.
+            FilledButton.tonalIcon(
+              onPressed: () => runCsvImport(context, ref),
+              icon: const Icon(Icons.download_outlined),
+              label: const Text('Import my notes'),
             ),
           ],
         ),

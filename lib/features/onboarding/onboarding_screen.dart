@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
+import '../scan_import/csv_flow.dart';
 
 /// First run seen? Refreshed after onboarding completes.
 final firstRunSeenProvider = FutureProvider<bool>(
@@ -28,6 +29,17 @@ class OnboardingScreen extends ConsumerWidget {
       subtitle: 'Phase F writes the real positioning line and the '
           'import-or-start-fresh fork here.',
       actions: [
+        // The rescue play leads: switchers arrive with an export.
+        FilledButton.icon(
+          icon: const Icon(Icons.download_outlined),
+          label: const Text('Import my notes'),
+          onPressed: () async {
+            // Run the flow first so this screen stays alive under it,
+            // then swap to the shell.
+            await runCsvImport(context, ref);
+            await _finish(ref);
+          },
+        ),
         TextButton(
           onPressed: () => _finish(ref),
           child: const Text('Just look around'),
