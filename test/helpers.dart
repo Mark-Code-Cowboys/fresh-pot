@@ -93,6 +93,26 @@ BeanDraft beanDraft({
       photos: photos,
     );
 
+/// Bare rows for pure-function tests (bestBrew and friends).
+Brew brewFor(int id) => Brew(
+      id: id,
+      beanId: 1,
+      method: BrewMethod.v60,
+      methodLabel: null,
+      doseG: null,
+      waterG: null,
+      yieldG: null,
+      grindSetting: null,
+      grinderGearId: null,
+      tempF: null,
+      timeSec: null,
+      brewedAt: DateTime(2026, 9, id),
+      journalEntryId: id,
+    );
+
+JournalEntry entryFor(int id, {int? rating, String? notes}) =>
+    JournalEntry(id: id, notes: notes, rating: rating, createdAt: DateTime(2026));
+
 BrewDraft brewDraft({
   BrewMethod method = BrewMethod.v60,
   double? doseG = 15,
