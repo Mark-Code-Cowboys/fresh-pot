@@ -7,7 +7,9 @@ import 'package:path_provider/path_provider.dart';
 
 import 'app.dart';
 import 'data/database/app_database.dart';
+import 'data/database/seed.dart';
 import 'data/providers.dart';
+import 'features/monetization/monetization_providers.dart';
 import 'features/scan_import/scan_import_providers.dart';
 
 Future<void> main() async {
@@ -16,6 +18,14 @@ Future<void> main() async {
   final documents = await getApplicationDocumentsDirectory();
   final photosDir =
       await Directory('${documents.path}/photos').create(recursive: true);
+
+  // Screenshot data: `flutter run --dart-define=DEMO_SEED=true`.
+  // Demo builds also fake Pro so the counter stays out of shots and the
+  // Pro-gated Trends screens are capturable; never ship this flag.
+  const demo = bool.fromEnvironment('DEMO_SEED');
+  if (demo) {
+    await seedDemoData(db);
+  }
 
   runApp(
     ProviderScope(
@@ -29,6 +39,9 @@ Future<void> main() async {
             ImagePickerPhotoService(photosDir, filePrefix: 'photo')),
         shareLauncherProvider.overrideWithValue(SharePlusLauncher()),
         tempDirProvider.overrideWithValue(getTemporaryDirectory),
+        if (demo)
+          entitlementServiceProvider
+              .overrideWithValue(FakeEntitlementService(unlimited: true)),
       ],
       child: const FreshPotApp(),
     ),

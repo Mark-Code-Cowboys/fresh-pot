@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
+import '../beans/bean_composer_screen.dart';
 import '../scan_import/csv_flow.dart';
 
 /// First run seen? Refreshed after onboarding completes.
@@ -10,9 +11,9 @@ final firstRunSeenProvider = FutureProvider<bool>(
   (ref) => FirstRunFlag(ref.watch(kvStoreProvider)).seen(),
 );
 
-/// PHASE F: replace the placeholder copy with the app's positioning
-/// line and add the import-or-start-fresh fork (see Hitch Post's
-/// onboarding for the house shape). The privacy promise stays.
+/// The first thing a switcher reads is the ownership pitch — their
+/// notes, held hostage nowhere — then the privacy promise, then the
+/// fork: the importer leads because the rescue play IS the onboarding.
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
@@ -24,10 +25,11 @@ class OnboardingScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return OnboardingScaffold(
-      icon: Icons.menu_book_outlined,
-      positioning: 'Fresh Pot scaffold is alive.',
-      subtitle: 'Phase F writes the real positioning line and the '
-          'import-or-start-fresh fork here.',
+      icon: Icons.coffee_outlined,
+      positioning: 'Your tasting notes belong to you.',
+      subtitle: 'No account, no cloud, no archive held for ransom. '
+          'Fresh Pot is the coffee journal you keep — every bag, every '
+          'brew, every note, on your phone and yours for good.',
       actions: [
         // The rescue play leads: switchers arrive with an export.
         FilledButton.icon(
@@ -37,6 +39,19 @@ class OnboardingScreen extends ConsumerWidget {
             // Run the flow first so this screen stays alive under it,
             // then swap to the shell.
             await runCsvImport(context, ref);
+            await _finish(ref);
+          },
+        ),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.add),
+          label: const Text('Add my first bag'),
+          onPressed: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const BeanComposerScreen(),
+                fullscreenDialog: true,
+              ),
+            );
             await _finish(ref);
           },
         ),
