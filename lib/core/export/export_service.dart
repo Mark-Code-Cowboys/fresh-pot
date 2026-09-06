@@ -19,11 +19,6 @@ class ExportService {
   final Future<Directory> Function() _tempDir;
   final PhotoService? _photos;
 
-  static String _stamp(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-'
-      '${d.month.toString().padLeft(2, '0')}-'
-      '${d.day.toString().padLeft(2, '0')}';
-
   /// Every bag as a CSV row with its tasting notes — the archive the
   /// incumbents wouldn't give back. Returns the written file.
   Future<File> shareBeansCsv({DateTime? now}) async {
@@ -60,13 +55,16 @@ class ExportService {
         ],
     ]);
 
-    final stamp = _stamp(now ?? DateTime.now());
-    final file =
-        File('${(await _tempDir()).path}/freshpot-beans-$stamp.csv');
-    await file.writeAsString(csv);
-    await _share.shareFile(file.path,
-        mimeType: 'text/csv', text: 'Fresh Pot notes ($stamp)');
-    return file;
+    return shareStampedFile(
+      share: _share,
+      tempDir: _tempDir,
+      baseName: 'freshpot-beans',
+      extension: 'csv',
+      mimeType: 'text/csv',
+      shareText: 'Fresh Pot notes',
+      text: csv,
+      now: now,
+    );
   }
 
   /// The full journal as one zip: export JSON plus bag photo files.
@@ -80,12 +78,15 @@ class ExportService {
           ? const {}
           : await _db.journal().collectMedia(store),
     );
-    final stamp = _stamp(now ?? DateTime.now());
-    final file =
-        File('${(await _tempDir()).path}/freshpot-backup-$stamp.zip');
-    await file.writeAsBytes(bytes);
-    await _share.shareFile(file.path,
-        mimeType: 'application/zip', text: 'Fresh Pot backup ($stamp)');
-    return file;
+    return shareStampedFile(
+      share: _share,
+      tempDir: _tempDir,
+      baseName: 'freshpot-backup',
+      extension: 'zip',
+      mimeType: 'application/zip',
+      shareText: 'Fresh Pot backup',
+      bytes: bytes,
+      now: now,
+    );
   }
 }

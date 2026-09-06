@@ -111,7 +111,7 @@ BagLabelReading? parseBagLabel(List<OcrLine> lines) {
       if (roastDate != null) break;
     }
   }
-  roastDate ??= parsePageDatesFirst(rows);
+  roastDate ??= parsePageDates(rows, max: 1).firstOrNull;
 
   final reading = BagLabelReading(
     roaster: roaster,
@@ -121,13 +121,4 @@ BagLabelReading? parseBagLabel(List<OcrLine> lines) {
     roastDate: roastDate,
   );
   return reading.isEmpty ? null : reading;
-}
-
-/// First parseable date across merged rows, or null.
-DateTime? parsePageDatesFirst(List<String> rows) {
-  for (final row in rows) {
-    final d = parseLooseDate(row);
-    if (d != null) return d;
-  }
-  return null;
 }
