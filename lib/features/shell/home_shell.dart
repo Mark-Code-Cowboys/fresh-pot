@@ -10,6 +10,7 @@ import '../home/home_screen.dart';
 import '../monetization/free_limit.dart';
 import '../monetization/monetization_providers.dart';
 import '../monetization/paywall_sheet.dart';
+import '../trends/trends_screen.dart';
 
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
@@ -21,7 +22,7 @@ class HomeShell extends ConsumerStatefulWidget {
 class _HomeShellState extends ConsumerState<HomeShell> {
   var _index = 0;
 
-  static const _screens = [HomeScreen(), GearScreen()];
+  static const _screens = [HomeScreen(), GearScreen(), TrendsScreen()];
 
   /// Adding a bag past the free five (lifetime adds, so deletes don't
   /// refund slots — history isn't a recyclable slot) opens the paywall
@@ -56,11 +57,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             icon: const Icon(Icons.add),
             label: const Text('Add bag'),
           ),
-        _ => FloatingActionButton.extended(
+        1 => FloatingActionButton.extended(
             onPressed: () => showGearComposer(context, ref),
             icon: const Icon(Icons.add),
             label: const Text('Add gear'),
           ),
+        _ => null, // trends is a reading tab
       },
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
@@ -70,6 +72,8 @@ class _HomeShellState extends ConsumerState<HomeShell> {
               icon: Icon(Icons.coffee_outlined), label: 'Beans'),
           NavigationDestination(
               icon: Icon(Icons.coffee_maker_outlined), label: 'Gear'),
+          NavigationDestination(
+              icon: Icon(Icons.insights_outlined), label: 'Trends'),
         ],
       ),
     );

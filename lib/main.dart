@@ -27,6 +27,8 @@ Future<void> main() async {
             .overrideWithValue(MlKitTextRecognitionService()),
         photoServiceProvider.overrideWithValue(
             ImagePickerPhotoService(photosDir, filePrefix: 'photo')),
+        shareLauncherProvider.overrideWithValue(SharePlusLauncher()),
+        tempDirProvider.overrideWithValue(getTemporaryDirectory),
       ],
       child: const FreshPotApp(),
     ),
